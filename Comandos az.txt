@@ -1,0 +1,42 @@
+az iot hub consumer-group create --hub-name hub-ADV --name adv_hub_test
+
+{"name": "adv_hub_test",
+  "properties": {
+    "created": "Fri, 07 Jun 2024 15:56:38 GMT",
+    "properties": {
+      "name": "adv_hub_test"
+    }
+  },
+  "resourceGroup": "hub",
+  "type": "Microsoft.Devices/IotHubs/EventHubEndpoints/ConsumerGroups"
+}
+
+
+
+az iot hub show-connection-string --hub-name hub-ADV
+
+{
+  "connectionString": "HostName=hub-Adv.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=2Ayec+jO4FjcKiAh/X5oS35+fMSP7mDCqAIoTHyADc8="
+}
+
+
+//criando plano 
+az appservice plan create --name hub-adv-plan --resource-group hub --sku FREE
+
+//criando aplicacao web
+az webapp create -n hub-adv-webapp -g hub -p hub-adv-plan --runtime "NODE:16LTS" --deployment-local-git
+
+//Variaveis de ambient 
+az webapp config appsettings set -n hub-adv-webapp -g hub --settings EventHubConsumerGroup=adv_hub_test IotHubConnectionString="HostName=hub-Adv.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=2Ayec+jO4FjcKiAh/X5oS35+fMSP7mDCqAIoTHyADc8="
+
+//configurando WebSocket e HTTPS
+az webapp config set -n hub-adv-webapp -g hub --web-sockets-enabled true
+
+az webapp update -n hub-adv-webapp -g hub --https-only true
+
+//Verificar o Status do Aplicativo
+az webapp show -n hub-adv-webapp -g hub --query state
+
+//site prodution
+https://hub-adv-webapp.azurewebsites.net/
+
